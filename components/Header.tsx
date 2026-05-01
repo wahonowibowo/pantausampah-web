@@ -52,6 +52,7 @@ export default function Header() {
           <div className={`collapse navbar-collapse ${isOpen ? 'show' : ''}`} id="navbarNavAltMarkup">
             <div className="navbar-nav ms-auto">
               <Link className="nav-link" href="/" onClick={closeMenu}>Beranda</Link>
+              <Link className="nav-link" href="/about" onClick={closeMenu}>Tentang Kami</Link>
               <Link className="nav-link" href="/services" onClick={closeMenu}>Layanan</Link>
               <Link className="nav-link" href="/blog" onClick={closeMenu}>Berita</Link>
               <Link className="nav-link" href="/contact" onClick={closeMenu}>Kontak Kami</Link>
