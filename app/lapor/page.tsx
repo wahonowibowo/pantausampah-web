@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { sendEmailNotification } from "@/actions/sendEmailAction";
 
 const categories = [
   { value: "sampah_berserakan", label: "🗑️ Sampah Berserakan", color: "#16a34a" },
@@ -23,6 +24,7 @@ export default function LaporPage() {
   const [gettingLocation, setGettingLocation] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
+  const [reportId, setReportId] = useState("");
 
   const handleLocation = () => {
     if (!navigator.geolocation) return;
@@ -73,7 +75,7 @@ export default function LaporPage() {
 
       // 2. Insert ke Tabel Supabase
       console.log("📝 Memasukkan data ke database...");
-      const { error: insertError } = await supabase
+      const { data: insertedData, error: insertError } = await supabase
         .from("laporan_sampah")
         .insert([
           {
@@ -85,11 +87,22 @@ export default function LaporPage() {
             foto_url: foto_url,
             status: "Pending",
           },
-        ]);
+        ])
+        .select();
 
       if (insertError) {
         console.error("❌ Gagal insert database:", insertError);
         throw new Error("Gagal menyimpan laporan: " + insertError.message);
+      }
+
+      const generatedId = insertedData?.[0]?.id || `PS-${Math.floor(Math.random() * 90000) + 10000}`;
+      setReportId(generatedId);
+
+      // 3. Kirim Email Notifikasi
+      try {
+        await sendEmailNotification(contact, "Pending", generatedId, name || "Warga", category, address);
+      } catch (emailErr) {
+        console.error("Gagal mengirim email:", emailErr);
       }
 
       console.log("✅ Laporan Berhasil Terkirim ke Supabase!");
@@ -114,7 +127,7 @@ export default function LaporPage() {
           </p>
           <div style={{ marginBottom: "24px" }}>
             <span style={s.successBadge}>
-              ID Laporan: <strong>PS-{Math.floor(Math.random() * 90000) + 10000}</strong>
+              ID Laporan: <strong>{reportId}</strong>
             </span>
           </div>
           <button
@@ -153,11 +166,11 @@ export default function LaporPage() {
       </div>
 
       {/* Main content */}
-      <div style={s.container}>
-        <div style={s.layout}>
+      <div className="container mx-auto px-4 md:px-12 py-8 max-w-[1180px]">
+        <div className="flex flex-col lg:flex-row gap-6 items-start w-full">
 
           {/* ── FORM ── */}
-          <form style={s.card} onSubmit={handleSubmit}>
+          <form className="flex-1 w-full" style={s.card} onSubmit={handleSubmit}>
 
             {/* 01 Kategori */}
             <div style={s.section}>
@@ -287,8 +300,8 @@ export default function LaporPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                 <input type="text" style={s.input} placeholder="Nama Anda"
                   value={name} onChange={(e) => setName(e.target.value)} />
-                <input type="text" style={s.input} placeholder="Nomor HP / Email"
-                  value={contact} onChange={(e) => setContact(e.target.value)} />
+                <input type="text" style={s.input} placeholder="Email Aktif (Untuk Notifikasi)"
+                  value={contact} onChange={(e) => setContact(e.target.value)} required />
               </div>
               <div style={s.privacyNote}>
                 🔒 Data Anda bersifat rahasia dan hanya digunakan untuk keperluan tindak lanjut laporan.
@@ -296,11 +309,11 @@ export default function LaporPage() {
             </div>
 
             {/* Submit bar */}
-            <div style={s.submitBar}>
+            <div style={{ ...s.submitBar, display: "flex", flexWrap: "wrap", gap: "16px", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ fontSize: "13px", color: "#6b7280" }}>
                 ⏱ Laporan diproses dalam <strong>1×24 jam</strong>
               </div>
-              <button type="submit" style={s.submitBtn} disabled={loading}>
+              <button type="submit" style={s.submitBtn} disabled={loading} className="w-full sm:w-auto flex justify-center">
                 {loading
                   ? <span style={{ display: "flex", alignItems: "center", gap: "8px" }}><span style={s.spinner} /> Mengirim...</span>
                   : "Kirim Laporan →"}
@@ -309,7 +322,7 @@ export default function LaporPage() {
           </form>
 
           {/* ── SIDEBAR ── */}
-          <aside style={{ display: "flex", flexDirection: "column" as const, gap: "16px" }}>
+          <aside className="w-full lg:w-[290px] flex flex-col gap-4">
 
             {/* Stats */}
             <div style={s.sideCard}>
@@ -376,7 +389,7 @@ const s: Record<string, React.CSSProperties> = {
   pageHeader: {
     backgroundColor: "#fff",
     borderBottom: "1px solid #dcfce7",
-    padding: "28px 48px",
+    padding: "28px 20px", // Reduced padding for mobile
   },
   breadcrumb: { display: "flex", alignItems: "center", gap: "6px", marginBottom: "10px" },
   bcLink: { fontSize: "13px", color: "#16a34a", textDecoration: "none" },
