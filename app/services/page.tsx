@@ -47,7 +47,7 @@ export default function Services() {
                   Ada kendala dalam pengangkutan? Laporkan langsung melalui platform kami. Laporan Anda akan diteruskan secara instan ke pihak terkait.
                 </p>
                 <div className="d-flex flex-column gap-2 mt-auto">
-                  <Link href="/lapor" className="btn btn-outline-success py-2 fw-semibold rounded-pill">
+                  <Link href="/lapor" className="btn btn-success py-2 fw-semibold rounded-pill">
                     Kirim Laporan
                   </Link>
                   <Link href="/status" className="btn btn-outline-success py-2 fw-semibold rounded-pill">
