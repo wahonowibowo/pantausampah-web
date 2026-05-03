@@ -59,9 +59,9 @@ export default async function Home() {
       </section>
 
       {/* ── CTA Sign Up ──────────────────────────────────────── */}
-      <section id="DaftarAkun" className="daftar-akun shadow-sm py-5">
+      <section id="DaftarAkun" className="daftar-akun py-5">
         <div className="container d-flex justify-content-center">
-          <div className="cta-dlh p-5">
+          <div className="cta-dlh shadow-sm p-5">
             <div className="row align-items-center">
               <div className="col-md-5 text-center mb-4 mb-md-0">
                 <img
