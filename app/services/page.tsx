@@ -83,10 +83,10 @@ export default function Services() {
       {/* CTA Section */}
       <section className="py-5">
         <div className="container">
-          <div className="bg-success text-white p-5 rounded-5 text-center shadow-lg" style={{ background: 'linear-gradient(135deg, #2e7d32, #43a047)' }}>
+          <div className="p-5 rounded-5 text-center shadow-lg" style={{ background: 'linear-gradient(135deg, #f1f8f4, #ffffff)' }}>
             <h2 className="fw-bold mb-3">Mulai Kelola Sampah Sekarang</h2>
             <p className="mb-4 opacity-75">Daftarkan akun Anda dan nikmati seluruh kemudahan layanan PantauSampah di tangan Anda.</p>
-            <Link href="/about" className="btn btn-light btn-lg px-5 py-3 rounded-pill fw-bold text-success shadow-sm">
+            <Link href="/about" className="btn btn-success btn-lg px-5 py-3 rounded-pill fw-bold text-white shadow-sm">
               Daftar Sekarang
             </Link>
           </div>
