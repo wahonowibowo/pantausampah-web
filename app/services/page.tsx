@@ -24,7 +24,7 @@ export default function Services() {
             <div className="col-md-5">
               <div className="card layanan-card h-100 p-4 border-0 shadow-sm transition-hover rounded-4">
                 <div className="flex justify-center mb-4">
-                  <IconifyIcon icon="material-symbols:calendar-month" width="40" height="40" className="bg-success bg-opacity-10 text-success" style={{ border-radius: "50px" }}></IconifyIcon>
+                  <IconifyIcon icon="material-symbols:calendar-month" width="40" height="40" className="bg-success bg-opacity-10 text-success" style={{ padding: "10px", borderRadius: "50px" }}></IconifyIcon>
                 </div>
                 <h4 className="fw-bold mb-3">Cek Jadwal</h4>
                 <p className="text-muted mb-4">
