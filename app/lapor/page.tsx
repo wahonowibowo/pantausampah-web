@@ -161,7 +161,7 @@ export default function LaporPage() {
           Laporkan Masalah <span style={s.titleGreen}>Sampah</span>
         </h1>
         <p style={s.pageSubtitle}>
-          Sampaikan laporan Anda dengan cepat dan mudah dan praktik &nbsp;•&nbsp; Pantau &nbsp;•&nbsp; Kelola &nbsp;•&nbsp; Jaga Bumi
+          Sampaikan laporan Anda dengan cepat dan mudah &nbsp;•&nbsp; Pantau &nbsp;•&nbsp; Kelola &nbsp;•&nbsp; Jaga Bumi
         </p>
       </div>
 
