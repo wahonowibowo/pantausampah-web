@@ -23,7 +23,7 @@ export default function Services() {
             {/* Card 1 */}
             <div className="col-md-5">
               <div className="card layanan-card h-100 p-4 border-0 shadow-sm transition-hover rounded-4">
-                <div className="flex justify-center mb-4">
+                <div className="flex justify-center mb-3">
                   <IconifyIcon icon="material-symbols:calendar-month" width="40" height="40" className="bg-success bg-opacity-10 text-success" style={{ padding: "10px", borderRadius: "50px" }}></IconifyIcon>
                 </div>
                 <h4 className="fw-bold mb-3">Cek Jadwal</h4>
@@ -39,8 +39,8 @@ export default function Services() {
             {/* Card 2 */}
             <div className="col-md-5">
               <div className="card layanan-card h-100 p-4 border-0 shadow-sm transition-hover rounded-4">
-                <div className="mb-4 bg-success bg-opacity-10 d-inline-flex p-3 rounded-circle text-success">
-                  <IconifyIcon icon="material-symbols:flag-2-rounded" width="40" height="40"></IconifyIcon>
+                <div className="flex justify-center mb-3">
+                  <IconifyIcon icon="material-symbols:flag-2-rounded" width="40" height="40" className="bg-success bg-opacity-10 text-success" style={{ padding: "10px", borderRadius: "50px" }}></IconifyIcon>
                 </div>
                 <h4 className="fw-bold mb-3">Lapor Masalah</h4>
                 <p className="text-muted mb-4">
