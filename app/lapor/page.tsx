@@ -1,5 +1,3 @@
-kak wahono
-
 "use client";
 
 import { useState } from "react";
