@@ -46,35 +46,24 @@ export default function LaporPage() {
     try {
       let foto_url = "";
 
-      // 1. Upload Foto jika ada
+      // 1. Upload Foto (Logic Wahono)
       if (photo) {
         console.log("📸 Mengunggah foto:", photo.name);
         const fileExt = photo.name.split(".").pop();
         const fileName = `${Date.now()}.${fileExt}`;
         const filePath = `laporan/${fileName}`;
 
-        const { error: uploadError, data } = await supabase.storage
-          .from("laporan") // Pastikan bucket "laporan" sudah dibuat & public
+        const { error: uploadError } = await supabase.storage
+          .from("laporan")
           .upload(filePath, photo);
 
-        if (uploadError) {
-          console.error("❌ Gagal upload foto:", uploadError);
-          throw new Error("Gagal mengunggah foto: " + uploadError.message);
-        }
+        if (uploadError) throw new Error("Gagal mengunggah foto: " + uploadError.message);
 
-        console.log("✅ Foto berhasil diunggah:", data.path);
-
-        // Ambil Public URL
-        const { data: urlData } = supabase.storage
-          .from("laporan")
-          .getPublicUrl(filePath);
-        
+        const { data: urlData } = supabase.storage.from("laporan").getPublicUrl(filePath);
         foto_url = urlData.publicUrl;
-        console.log("🔗 URL Foto:", foto_url);
       }
 
-      // 2. Insert ke Tabel Supabase
-      console.log("📝 Memasukkan data ke database...");
+      // 2. Insert Database (Logic Wahono)
       const { data: insertedData, error: insertError } = await supabase
         .from("laporan_sampah")
         .insert([
@@ -90,25 +79,20 @@ export default function LaporPage() {
         ])
         .select();
 
-      if (insertError) {
-        console.error("❌ Gagal insert database:", insertError);
-        throw new Error("Gagal menyimpan laporan: " + insertError.message);
-      }
+      if (insertError) throw new Error("Gagal menyimpan laporan: " + insertError.message);
 
       const generatedId = insertedData?.[0]?.id || `PS-${Math.floor(Math.random() * 90000) + 10000}`;
       setReportId(generatedId);
 
-      // 3. Kirim Email Notifikasi
+      // 3. Email Notification (Logic Wahono)
       try {
         await sendEmailNotification(contact, "Pending", generatedId, name || "Warga", category, address);
       } catch (emailErr) {
         console.error("Gagal mengirim email:", emailErr);
       }
 
-      console.log("✅ Laporan Berhasil Terkirim ke Supabase!");
       setSubmitted(true);
     } catch (err: any) {
-      console.error("💥 Error fatal:", err.message);
       alert(err.message || "Terjadi kesalahan saat mengirim laporan.");
     } finally {
       setLoading(false);
@@ -150,7 +134,7 @@ export default function LaporPage() {
 
   return (
     <div style={s.page}>
-      {/* Page header — matches the site's white header style */}
+      {/* HEADER - PERSIS SEKAR */}
       <div style={s.pageHeader}>
         <div style={s.breadcrumb}>
           <a href="/" style={s.bcLink}>Beranda</a>
@@ -161,20 +145,15 @@ export default function LaporPage() {
           Laporkan Masalah <span style={s.titleGreen}>Sampah</span>
         </h1>
         <p style={s.pageSubtitle}>
-          Sampaikan laporan Anda dengan cepat, mudah, dan praktis
-        </p>
-        <p style={s.pageSubtitle}>
-          &nbsp;•&nbsp; Pantau &nbsp;•&nbsp; Kelola &nbsp;•&nbsp; Jaga Bumi
+          Sampaikan laporan Anda dengan cepat dan mudah &nbsp;•&nbsp; Pantau &nbsp;•&nbsp; Kelola &nbsp;•&nbsp; Jaga Bumi
         </p>
       </div>
 
-      {/* Main content */}
-      <div className="container mx-auto px-4 md:px-12 py-8 max-w-[1180px]">
-        <div className="flex flex-col lg:flex-row gap-6 items-start w-full">
-
-          {/* ── FORM ── */}
-          <form className="flex-1 w-full" style={s.card} onSubmit={handleSubmit}>
-
+      <div style={s.container}>
+        <div style={s.layout}>
+          
+          {/* FORM CARD - PERSIS SEKAR */}
+          <form style={s.card} onSubmit={handleSubmit}>
             {/* 01 Kategori */}
             <div style={s.section}>
               <div style={s.stepHead}>
@@ -251,8 +230,7 @@ export default function LaporPage() {
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "center" }}>
                     <span style={{ fontSize: "20px" }}>📷</span>
                     <span style={{ fontSize: "13.5px", color: "#374151", fontWeight: "500" }}>{photo.name}</span>
-                    <button type="button" style={s.removeBtn}
-                      onClick={(e) => { e.stopPropagation(); setPhoto(null); }}>✕</button>
+                    <button type="button" style={s.removeBtn} onClick={(e) => { e.stopPropagation(); setPhoto(null); }}>✕</button>
                   </div>
                 ) : (
                   <div>
@@ -303,20 +281,20 @@ export default function LaporPage() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                 <input type="text" style={s.input} placeholder="Nama Anda"
                   value={name} onChange={(e) => setName(e.target.value)} />
-                <input type="text" style={s.input} placeholder="Email Aktif (Untuk Notifikasi)"
-                  value={contact} onChange={(e) => setContact(e.target.value)} required />
+                <input type="text" style={s.input} placeholder="Nomor HP / Email"
+                  value={contact} onChange={(e) => setContact(e.target.value)} />
               </div>
               <div style={s.privacyNote}>
                 🔒 Data Anda bersifat rahasia dan hanya digunakan untuk keperluan tindak lanjut laporan.
               </div>
             </div>
 
-            {/* Submit bar */}
-            <div style={{ ...s.submitBar, display: "flex", flexWrap: "wrap", gap: "16px", justifyContent: "space-between", alignItems: "center" }}>
+            {/* SUBMIT BAR - PERSIS SEKAR */}
+            <div style={s.submitBar}>
               <div style={{ fontSize: "13px", color: "#6b7280" }}>
                 ⏱ Laporan diproses dalam <strong>1×24 jam</strong>
               </div>
-              <button type="submit" style={s.submitBtn} disabled={loading} className="w-full sm:w-auto flex justify-center">
+              <button type="submit" style={s.submitBtn} disabled={loading}>
                 {loading
                   ? <span style={{ display: "flex", alignItems: "center", gap: "8px" }}><span style={s.spinner} /> Mengirim...</span>
                   : "Kirim Laporan →"}
@@ -324,9 +302,8 @@ export default function LaporPage() {
             </div>
           </form>
 
-          {/* ── SIDEBAR ── */}
-          <aside className="w-full lg:w-[290px] flex flex-col gap-4">
-
+          {/* SIDEBAR - PERSIS SEKAR */}
+          <aside style={{ display: "flex", flexDirection: "column" as const, gap: "16px" }}>
             {/* Stats */}
             <div style={s.sideCard}>
               <div style={s.sideHead}>
@@ -363,7 +340,6 @@ export default function LaporPage() {
               ))}
             </div>
 
-            {/* CTA */}
             <div style={s.ctaCard}>
               <div style={{ fontSize: "28px", marginBottom: "8px" }}>🌿</div>
               <div style={{ fontSize: "13px", color: "#bbf7d0", lineHeight: "1.6", marginBottom: "10px" }}>
@@ -380,20 +356,10 @@ export default function LaporPage() {
   );
 }
 
-/* ─── Design tokens (matches PantauSampah site) ─── */
+// DESIGN TOKENS - 100% COPY DARI VERSI SEKAR
 const s: Record<string, React.CSSProperties> = {
-  page: {
-    minHeight: "100vh",
-    backgroundColor: "#f0fdf4",
-    fontFamily: "'Niramit', sans-serif",
-  },
-
-  // Page header — white, matches the site's header aesthetic
-  pageHeader: {
-    backgroundColor: "#fff",
-    borderBottom: "1px solid #dcfce7",
-    padding: "28px 20px", // Reduced padding for mobile
-  },
+  page: { minHeight: "100vh", backgroundColor: "#f0fdf4", fontFamily: "'Niramit', sans-serif" },
+  pageHeader: { backgroundColor: "#fff", borderBottom: "1px solid #dcfce7", padding: "28px 48px" },
   breadcrumb: { display: "flex", alignItems: "center", gap: "6px", marginBottom: "10px" },
   bcLink: { fontSize: "13px", color: "#16a34a", textDecoration: "none" },
   bcSep: { fontSize: "13px", color: "#9ca3af" },
@@ -401,146 +367,40 @@ const s: Record<string, React.CSSProperties> = {
   pageTitle: { fontSize: "clamp(26px, 4vw, 36px)", fontWeight: "800", color: "#111827", margin: "0 0 6px", letterSpacing: "-0.5px" },
   titleGreen: { color: "#16a34a" },
   pageSubtitle: { fontSize: "14px", color: "#6b7280", margin: 0 },
-
-  // Layout
   container: { padding: "28px 48px 60px", maxWidth: "1180px", margin: "0 auto" },
   layout: { display: "grid", gridTemplateColumns: "1fr 290px", gap: "24px", alignItems: "start" },
-
-  // Card
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: "16px",
-    border: "1px solid #bbf7d0",
-    boxShadow: "0 2px 16px rgba(22,163,74,0.06)",
-    overflow: "hidden",
-  },
+  card: { backgroundColor: "#fff", borderRadius: "16px", border: "1px solid #bbf7d0", boxShadow: "0 2px 16px rgba(22,163,74,0.06)", overflow: "hidden" },
   section: { padding: "22px 26px" },
   hr: { height: "1px", backgroundColor: "#f0fdf4", margin: "0 26px" },
-
   stepHead: { display: "flex", alignItems: "flex-start", gap: "12px", marginBottom: "14px" },
-  stepNum: {
-    flexShrink: 0, width: "26px", height: "26px", borderRadius: "7px",
-    backgroundColor: "#f0fdf4", border: "1.5px solid #bbf7d0",
-    color: "#16a34a", fontSize: "10.5px", fontWeight: "700",
-    display: "flex", alignItems: "center", justifyContent: "center",
-    letterSpacing: "0.3px", marginTop: "2px",
-  },
+  stepNum: { flexShrink: 0, width: "26px", height: "26px", borderRadius: "7px", backgroundColor: "#f0fdf4", border: "1.5px solid #bbf7d0", color: "#16a34a", fontSize: "10.5px", fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center", letterSpacing: "0.3px", marginTop: "2px" },
   stepTitle: { fontSize: "14.5px", fontWeight: "700", color: "#111827", marginBottom: "2px" },
   stepSub: { fontSize: "12px", color: "#9ca3af" },
-  optTag: {
-    fontSize: "10.5px", fontWeight: "500", color: "#9ca3af",
-    backgroundColor: "#f3f4f6", borderRadius: "4px", padding: "1px 5px",
-    marginLeft: "5px", verticalAlign: "middle",
-  },
-
+  optTag: { fontSize: "10.5px", fontWeight: "500", color: "#9ca3af", backgroundColor: "#f3f4f6", borderRadius: "4px", padding: "1px 5px", marginLeft: "5px", verticalAlign: "middle" },
   catGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(165px, 1fr))", gap: "7px" },
-  catBtn: {
-    padding: "9px 12px", borderRadius: "9px",
-    border: "1.5px solid #e5e7eb", backgroundColor: "#fafafa",
-    color: "#374151", fontSize: "13px", fontWeight: "500",
-    cursor: "pointer", textAlign: "left", transition: "all 0.15s",
-    fontFamily: "inherit",
-  },
-
-  textarea: {
-    width: "100%", padding: "11px 13px", borderRadius: "9px",
-    border: "1.5px solid #e5e7eb", fontSize: "13.5px", color: "#111827",
-    resize: "vertical", outline: "none", fontFamily: "inherit",
-    lineHeight: "1.6", boxSizing: "border-box", backgroundColor: "#fafafa",
-  },
+  catBtn: { padding: "9px 12px", borderRadius: "9px", border: "1.5px solid #e5e7eb", backgroundColor: "#fafafa", color: "#374151", fontSize: "13px", fontWeight: "500", cursor: "pointer", textAlign: "left", transition: "all 0.15s", fontFamily: "inherit" },
+  textarea: { width: "100%", padding: "11px 13px", borderRadius: "9px", border: "1.5px solid #e5e7eb", fontSize: "13.5px", color: "#111827", resize: "vertical", outline: "none", fontFamily: "inherit", lineHeight: "1.6", boxSizing: "border-box", backgroundColor: "#fafafa" },
   charCount: { fontSize: "11px", color: "#9ca3af", textAlign: "right", marginTop: "4px" },
-
-  dropzone: {
-    border: "2px dashed #d1fae5", borderRadius: "10px", padding: "24px",
-    textAlign: "center", cursor: "pointer", transition: "all 0.2s", backgroundColor: "#fafafa",
-  },
+  dropzone: { border: "2px dashed #d1fae5", borderRadius: "10px", padding: "24px", textAlign: "center", cursor: "pointer", transition: "all 0.2s", backgroundColor: "#fafafa" },
   dropActive: { borderColor: "#22c55e", backgroundColor: "#f0fdf4" },
-
-  removeBtn: {
-    background: "none", border: "none", color: "#9ca3af",
-    cursor: "pointer", fontSize: "14px", padding: "0 4px", fontFamily: "inherit",
-  },
-
-  input: {
-    padding: "11px 13px", borderRadius: "9px", border: "1.5px solid #e5e7eb",
-    fontSize: "13.5px", color: "#111827", outline: "none",
-    fontFamily: "inherit", backgroundColor: "#fafafa", boxSizing: "border-box",
-  },
-  gpsBtn: {
-    padding: "11px 16px", borderRadius: "9px", border: "1.5px solid #22c55e",
-    backgroundColor: "#f0fdf4", color: "#15803d", fontWeight: "600",
-    fontSize: "13px", cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit",
-  },
-
-  privacyNote: {
-    fontSize: "12px", color: "#6b7280", marginTop: "10px",
-    backgroundColor: "#f0fdf4", border: "1px solid #dcfce7",
-    borderRadius: "8px", padding: "8px 11px", lineHeight: "1.5",
-  },
-
-  submitBar: {
-    display: "flex", alignItems: "center", justifyContent: "space-between",
-    padding: "18px 26px", backgroundColor: "#f0fdf4",
-    borderTop: "1px solid #dcfce7", flexWrap: "wrap", gap: "12px",
-  },
-  submitBtn: {
-    padding: "12px 26px", borderRadius: "9px", border: "none",
-    backgroundColor: "#16a34a", color: "#fff", fontSize: "14px",
-    fontWeight: "700", cursor: "pointer", fontFamily: "inherit",
-    boxShadow: "0 4px 12px rgba(22,163,74,0.28)", display: "flex", alignItems: "center",
-  },
-  spinner: {
-    display: "inline-block", width: "13px", height: "13px",
-    border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff",
-    borderRadius: "50%",
-  },
-
-  // Sidebar
-  sideCard: {
-    backgroundColor: "#fff", borderRadius: "13px",
-    border: "1px solid #bbf7d0", padding: "18px",
-    boxShadow: "0 2px 10px rgba(22,163,74,0.04)",
-  },
-  sideHead: {
-    display: "flex", alignItems: "center", gap: "7px",
-    marginBottom: "14px", paddingBottom: "11px", borderBottom: "1px solid #f0fdf4",
-  },
+  removeBtn: { background: "none", border: "none", color: "#9ca3af", cursor: "pointer", fontSize: "14px", padding: "0 4px", fontFamily: "inherit" },
+  input: { padding: "11px 13px", borderRadius: "9px", border: "1.5px solid #e5e7eb", fontSize: "13.5px", color: "#111827", outline: "none", fontFamily: "inherit", backgroundColor: "#fafafa", boxSizing: "border-box" },
+  gpsBtn: { padding: "11px 16px", borderRadius: "9px", border: "1.5px solid #22c55e", backgroundColor: "#f0fdf4", color: "#15803d", fontWeight: "600", fontSize: "13px", cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" },
+  privacyNote: { fontSize: "12px", color: "#6b7280", marginTop: "10px", backgroundColor: "#f0fdf4", border: "1px solid #dcfce7", borderRadius: "8px", padding: "8px 11px", lineHeight: "1.5" },
+  submitBar: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 26px", backgroundColor: "#f0fdf4", borderTop: "1px solid #dcfce7", flexWrap: "wrap", gap: "12px" },
+  submitBtn: { padding: "12px 26px", borderRadius: "9px", border: "none", backgroundColor: "#16a34a", color: "#fff", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit", boxShadow: "0 4px 12px rgba(22,163,74,0.28)", display: "flex", alignItems: "center" },
+  spinner: { display: "inline-block", width: "13px", height: "13px", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 1s linear infinite" },
+  sideCard: { backgroundColor: "#fff", borderRadius: "13px", border: "1px solid #bbf7d0", padding: "18px", boxShadow: "0 2px 10px rgba(22,163,74,0.04)" },
+  sideHead: { display: "flex", alignItems: "center", gap: "7px", marginBottom: "14px", paddingBottom: "11px", borderBottom: "1px solid #f0fdf4" },
   sideTitle: { fontSize: "13.5px", fontWeight: "700", color: "#14532d" },
-  statRow: {
-    display: "flex", justifyContent: "space-between", alignItems: "center",
-    padding: "7px 0", borderBottom: "1px solid #f0fdf4",
-  },
+  statRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0", borderBottom: "1px solid #f0fdf4" },
   statNum: { fontSize: "17px", fontWeight: "800", color: "#16a34a" },
   statLabel: { fontSize: "11.5px", color: "#6b7280", textAlign: "right", maxWidth: "120px" },
-
-  ctaCard: {
-    backgroundColor: "#15803d", borderRadius: "13px",
-    padding: "20px", textAlign: "center",
-  },
-
-  // Success screen
-  successWrap: {
-    maxWidth: "460px", margin: "80px auto", backgroundColor: "#fff",
-    borderRadius: "20px", border: "1px solid #bbf7d0",
-    padding: "44px 36px", textAlign: "center",
-    boxShadow: "0 8px 32px rgba(22,163,74,0.1)",
-  },
-  successIcon: {
-    width: "58px", height: "58px", borderRadius: "50%",
-    backgroundColor: "#22c55e", color: "#fff", fontSize: "24px", fontWeight: "700",
-    display: "flex", alignItems: "center", justifyContent: "center",
-    margin: "0 auto 18px", boxShadow: "0 4px 16px rgba(34,197,94,0.35)",
-  },
+  ctaCard: { backgroundColor: "#15803d", borderRadius: "13px", padding: "20px", textAlign: "center" },
+  successWrap: { maxWidth: "460px", margin: "80px auto", backgroundColor: "#fff", borderRadius: "20px", border: "1px solid #bbf7d0", padding: "44px 36px", textAlign: "center", boxShadow: "0 8px 32px rgba(22,163,74,0.1)" },
+  successIcon: { width: "58px", height: "58px", borderRadius: "50%", backgroundColor: "#22c55e", color: "#fff", fontSize: "24px", fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 18px", boxShadow: "0 4px 16px rgba(34,197,94,0.35)" },
   successTitle: { fontSize: "23px", fontWeight: "800", color: "#14532d", margin: "0 0 10px" },
   successText: { fontSize: "14px", color: "#4b5563", lineHeight: "1.7", margin: "0 0 18px" },
-  successBadge: {
-    display: "inline-block", padding: "7px 14px", borderRadius: "8px",
-    backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0",
-    fontSize: "12.5px", color: "#14532d",
-  },
-  newBtn: {
-    width: "100%", padding: "12px", borderRadius: "9px", border: "none",
-    backgroundColor: "#16a34a", color: "#fff", fontSize: "14px",
-    fontWeight: "700", cursor: "pointer", fontFamily: "inherit",
-  },
+  successBadge: { display: "inline-block", padding: "7px 14px", borderRadius: "8px", backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", fontSize: "12.5px", color: "#14532d" },
+  newBtn: { width: "100%", padding: "12px", borderRadius: "9px", border: "none", backgroundColor: "#16a34a", color: "#fff", fontSize: "14px", fontWeight: "700", cursor: "pointer", fontFamily: "inherit" },
 };
