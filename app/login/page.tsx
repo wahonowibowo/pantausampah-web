@@ -1,28 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState } from "react";
+import { loginAction } from "@/actions/authAction";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const [role, setRole] = useState("admin");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Sebagai mockup/purwarupa, kita langsung mengarahkan pengguna berdasarkan peran.
-    if (role === "admin") {
-      router.push("/admin");
-    } else if (role === "petugas") {
-      alert("Halaman Dasbor Petugas Lapangan belum tersedia. Anda akan diarahkan ke Beranda.");
-      router.push("/");
-    } else if (role === "pelanggan") {
-      alert("Halaman Dasbor Pelanggan belum tersedia. Anda akan diarahkan ke Beranda.");
-      router.push("/");
-    }
-  };
+  const [state, action, isPending] = useActionState(loginAction, undefined);
 
   return (
     <div style={s.page}>
@@ -35,44 +17,29 @@ export default function LoginPage() {
             <h1 style={s.title}>
               Masuk ke <span style={s.titleGreen}>PantauSampah</span>
             </h1>
-            <p style={s.subtitle}>Silakan pilih peran dan masuk ke akun Anda</p>
+            <p style={s.subtitle}>Masuk ke akun Anda untuk mengelola laporan</p>
           </div>
 
-          <form onSubmit={handleLogin} style={s.form}>
-            {/* Pemilihan Peran */}
-            <div style={s.formGroup}>
-              <label style={s.label}>Masuk Sebagai</label>
-              <div style={s.roleGrid}>
-                {[
-                  { id: "admin", label: "Admin" },
-                  { id: "petugas", label: "Petugas Lapangan" },
-                  { id: "pelanggan", label: "Pelanggan" },
-                ].map((r) => (
-                  <button
-                    key={r.id}
-                    type="button"
-                    onClick={() => setRole(r.id)}
-                    style={{
-                      ...s.roleBtn,
-                      ...(role === r.id ? s.roleBtnActive : {}),
-                    }}
-                  >
-                    {r.label}
-                  </button>
-                ))}
+          <form action={action} style={s.form}>
+            {state?.message && (
+              <div style={s.errorMessageContainer}>
+                {state.message}
               </div>
-            </div>
+            )}
 
             {/* Input Email */}
             <div style={s.formGroup}>
               <label style={s.label}>Email</label>
               <input
                 type="email"
+                name="email"
                 style={s.input}
-                placeholder="Masukkan alamat email (opsional)"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Masukkan alamat email"
+                defaultValue={""}
               />
+              {state?.errors?.email && (
+                <p style={s.errorText}>{state.errors.email[0]}</p>
+              )}
             </div>
 
             {/* Input Password */}
@@ -80,21 +47,34 @@ export default function LoginPage() {
               <label style={s.label}>Kata Sandi</label>
               <input
                 type="password"
+                name="password"
                 style={s.input}
-                placeholder="Masukkan kata sandi (opsional)"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Masukkan kata sandi"
+                defaultValue={""}
               />
+              {state?.errors?.password && (
+                <p style={s.errorText}>{state.errors.password[0]}</p>
+              )}
+            </div>
+            
+            <div style={s.forgotPasswordContainer}>
+              <button 
+                type="button" 
+                onClick={() => alert("Fitur Lupa Password sedang dalam pengembangan.")}
+                style={s.forgotPasswordBtn}
+              >
+                Lupa Password?
+              </button>
             </div>
 
-            <button type="submit" style={s.submitBtn}>
-              Masuk
+            <button type="submit" style={s.submitBtn} disabled={isPending}>
+              {isPending ? "Memproses..." : "Masuk"}
             </button>
           </form>
 
           <div style={s.footer}>
             <p style={{ margin: 0, fontSize: "13px", color: "#6b7280" }}>
-              Belum punya akun Pelanggan? <a href="/lapor" style={{ color: "#16a34a", fontWeight: "600", textDecoration: "none" }}>Daftar sekarang</a>
+              Belum punya akun Pelanggan? <a href="/register" style={{ color: "#16a34a", fontWeight: "600", textDecoration: "none" }}>Daftar sekarang</a>
             </p>
           </div>
         </div>
@@ -157,28 +137,6 @@ const s: Record<string, React.CSSProperties> = {
     color: "#374151",
     marginBottom: "8px",
   },
-  roleGrid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr 1fr",
-    gap: "8px",
-  },
-  roleBtn: {
-    padding: "10px",
-    borderRadius: "10px",
-    border: "1.5px solid #e5e7eb",
-    backgroundColor: "#fafafa",
-    color: "#6b7280",
-    fontSize: "12px",
-    fontWeight: "600",
-    cursor: "pointer",
-    transition: "all 0.2s",
-    textAlign: "center" as const,
-  },
-  roleBtnActive: {
-    borderColor: "#16a34a",
-    backgroundColor: "#f0fdf4",
-    color: "#16a34a",
-  },
   input: {
     width: "100%",
     padding: "14px 16px",
@@ -189,6 +147,36 @@ const s: Record<string, React.CSSProperties> = {
     outline: "none",
     backgroundColor: "#fafafa",
     boxSizing: "border-box",
+  },
+  errorText: {
+    color: "#ef4444",
+    fontSize: "12px",
+    marginTop: "6px",
+    marginBottom: "0",
+  },
+  errorMessageContainer: {
+    padding: "12px",
+    backgroundColor: "#fef2f2",
+    border: "1px solid #fecaca",
+    color: "#b91c1c",
+    borderRadius: "8px",
+    fontSize: "13px",
+    marginBottom: "20px",
+    textAlign: "center" as const,
+  },
+  forgotPasswordContainer: {
+    display: "flex",
+    justifyContent: "flex-end",
+    marginBottom: "20px",
+  },
+  forgotPasswordBtn: {
+    background: "none",
+    border: "none",
+    color: "#16a34a",
+    fontSize: "13px",
+    fontWeight: "600",
+    cursor: "pointer",
+    padding: 0,
   },
   submitBtn: {
     width: "100%",
@@ -201,7 +189,6 @@ const s: Record<string, React.CSSProperties> = {
     fontWeight: "700",
     cursor: "pointer",
     boxShadow: "0 4px 12px rgba(22,163,74,0.25)",
-    marginTop: "10px",
     transition: "background-color 0.2s",
   },
   footer: {
