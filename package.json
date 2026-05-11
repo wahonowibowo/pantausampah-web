@@ -1,5 +1,5 @@
 {
-  "name": "pantausampah-main",
+  "name": "pantausampah-web",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SekarPinayungan/PantauSampah.git"
+    "url": "git+https://github.com/wahonowibowo/pantausampah-web.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/SekarPinayungan/PantauSampah/issues"
+    "url": "https://github.com/wahonowibowo/pantausampah-web/issues"
   },
-  "homepage": "https://github.com/SekarPinayungan/PantauSampah#readme",
+  "homepage": "https://github.com/wahonowibowo/pantausampah-web#readme",
   "dependencies": {
     "@supabase/supabase-js": "^2.105.1",
     "@tailwindcss/postcss": "^4.2.4",
@@ -29,7 +29,8 @@
     "next": "^16.2.4",
     "nodemailer": "^8.0.7",
     "react": "^19.2.5",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
